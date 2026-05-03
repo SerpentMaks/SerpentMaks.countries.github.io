@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta id="meta-theme-color" name="theme-color" content="#F5F7FA" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="WorldCards" />
+  <meta name="description" content="Изучение стран и столиц мира" />
+  <title>WorldCards</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <button type="button" class="icon-btn" id="btn-menu" aria-label="Меню">☰</button>
+      <h1 class="topbar-title" id="topbar-title">Изучение</h1>
+      <button type="button" class="text-btn" id="topbar-action">Повторить</button>
+    </header>
+
+    <main class="main">
+      <section id="view-study" class="view view-study">
+        <div class="card-stack" id="card-stack">
+          <div class="card-slot" id="card-slot"></div>
+        </div>
+        <p class="hint-swipe">← не уверен · тап — столица · знаю →</p>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="study-progress"></div>
+        </div>
+      </section>
+
+      <section id="view-repeat" class="view view-repeat hidden">
+        <div class="repeat-card-wrap">
+          <div class="repeat-card" id="repeat-card"></div>
+        </div>
+        <form class="repeat-form" id="repeat-form" autocomplete="off">
+          <input
+            type="text"
+            class="repeat-input"
+            id="repeat-input"
+            placeholder="Введите ответ"
+            enterkeyhint="done"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <div class="repeat-actions">
+            <button type="submit" class="btn primary" id="btn-check">Проверить</button>
+            <button type="button" class="btn secondary" id="btn-hint">Подсказка</button>
+          </div>
+          <p class="hint-line hidden" id="hint-line"></p>
+        </form>
+        <div class="repeat-meta">
+          <span id="repeat-streak">Серия: 0</span>
+        </div>
+      </section>
+    </main>
+
+    <div class="drawer-overlay hidden" id="drawer-overlay"></div>
+    <aside class="drawer hidden" id="drawer" aria-hidden="true">
+      <div class="drawer-head">
+        <span class="drawer-brand">WorldCards</span>
+        <button type="button" class="icon-btn" id="drawer-close" aria-label="Закрыть">×</button>
+      </div>
+      <nav class="drawer-nav">
+        <div class="drawer-section">
+          <h3>Тема</h3>
+          <label class="row"><input type="radio" name="theme" value="light" /> Светлая</label>
+          <label class="row"><input type="radio" name="theme" value="dark" /> Тёмная</label>
+        </div>
+        <div class="drawer-section">
+          <h3>Настройки</h3>
+          <label class="row between">
+            <span>Звук</span>
+            <input type="checkbox" id="set-sound" />
+          </label>
+          <label class="row between">
+            <span>Громкость</span>
+            <input type="range" id="set-volume" min="0" max="1" step="0.05" />
+          </label>
+          <label class="row between">
+            <span>Вибрация</span>
+            <input type="checkbox" id="set-vibration" />
+          </label>
+        </div>
+        <div class="drawer-section">
+          <h3>Данные</h3>
+          <button type="button" class="btn block danger" id="btn-reset">Сброс прогресса</button>
+          <button type="button" class="btn block secondary" id="btn-export">Экспорт прогресса (JSON)</button>
+          <label class="btn block secondary file-label">
+            Импорт прогресса
+            <input type="file" id="btn-import" accept="application/json,.json" hidden />
+          </label>
+        </div>
+        <div class="drawer-section">
+          <h3>Статистика</h3>
+          <ul class="stats-list" id="stats-list">
+            <li>Всего стран: —</li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
