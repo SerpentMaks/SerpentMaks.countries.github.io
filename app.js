@@ -15,10 +15,22 @@ function hashId(str) {
   return 'c' + (h >>> 0).toString(36);
 }
 
-const countries = rawCountries.map((c) => ({
-  ...c,
-  id: hashId(`${c.name}|${c.capital}|${c.flag}|${c.fact}`),
-}));
+function assignStableIds(list) {
+  const seen = new Set();
+  return list.map((c) => {
+    let base = hashId(`${c.name}|${c.capital}|${c.flag}`);
+    let id = base;
+    let n = 0;
+    while (seen.has(id)) {
+      n += 1;
+      id = `${base}x${n}`;
+    }
+    seen.add(id);
+    return { ...c, id };
+  });
+}
+
+const countries = assignStableIds(rawCountries);
 
 function defaultState() {
   return {
@@ -296,6 +308,9 @@ function updateStudyProgressBar() {
   const learned = countByStatus().learned;
   const pct = total ? (learned / total) * 100 : 0;
   els.studyProgress.style.width = `${pct}%`;
+  els.studyProgress.classList.remove('pulse');
+  void els.studyProgress.offsetWidth;
+  els.studyProgress.classList.add('pulse');
 }
 
 function setDrawer(open) {
@@ -316,7 +331,7 @@ function setDrawer(open) {
     setTimeout(() => {
       d.classList.add('hidden');
       o.classList.add('hidden');
-    }, 280);
+    }, 400);
   }
 }
 
@@ -326,6 +341,14 @@ function syncSettingsUI() {
   els.setVolume.value = String(state.settings.volume ?? 0.8);
 }
 
+function setTopbarTitleAnimated(text) {
+  els.topbarTitle.classList.add('is-updating');
+  setTimeout(() => {
+    els.topbarTitle.textContent = text;
+    els.topbarTitle.classList.remove('is-updating');
+  }, 160);
+}
+
 function showView(name) {
   view = name;
   const isStudy = name === 'study';
@@ -333,19 +356,19 @@ function showView(name) {
   els.viewRepeat.classList.toggle('hidden', isStudy);
 
   if (isStudy) {
-    els.topbarTitle.textContent = `Осталось: ${remainingNotLearned()} стран`;
+    setTopbarTitleAnimated(`Осталось: ${remainingNotLearned()} стран`);
     els.topbarAction.textContent = 'Повторить';
     buildStudyQueue();
     renderStudyCard();
     updateStudyProgressBar();
   } else {
-    els.topbarTitle.textContent = 'Повторение';
+    setTopbarTitleAnimated('Повторение');
     els.topbarAction.textContent = 'Изучать';
     repeatHintStep = 0;
     els.hintLine.classList.add('hidden');
     repeatCurrent = pickRepeatQuestion();
     renderRepeatCard();
-    setTimeout(() => els.repeatInput.focus(), 200);
+    setTimeout(() => els.repeatInput.focus(), 280);
   }
 }
 
@@ -379,6 +402,11 @@ function renderStudyCard() {
   card.addEventListener('click', () => {
     capitalHidden = !capitalHidden;
     capEl.classList.toggle('hidden-capital', capitalHidden);
+    if (!capitalHidden) {
+      capEl.classList.remove('capital-reveal-pulse');
+      void capEl.offsetWidth;
+      capEl.classList.add('capital-reveal-pulse');
+    }
   });
 
   attachSwipe(card, country);
@@ -428,11 +456,11 @@ function attachSwipe(card, country) {
       /* ignore */
     }
     if (!committed) {
-      card.style.transition = 'transform 0.25s ease';
+      card.style.transition = 'transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)';
       card.style.transform = '';
       setTimeout(() => {
         card.style.transition = '';
-      }, 260);
+      }, 430);
     }
   };
 
@@ -441,9 +469,10 @@ function attachSwipe(card, country) {
     if (Math.abs(curX) > threshold) {
       const dir = curX > 0 ? 1 : -1;
       card.classList.add('exiting');
-      card.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
+      card.style.transition =
+        'transform 0.38s cubic-bezier(0.34, 1, 0.64, 1), opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1)';
       const off = dir * (window.innerWidth + 80);
-      card.style.transform = `translateX(${off}px) rotate(${dir * 24}deg)`;
+      card.style.transform = `translateX(${off}px) rotate(${dir * 22}deg)`;
       card.style.opacity = '0';
       soundSwipe();
 
@@ -462,7 +491,7 @@ function attachSwipe(card, country) {
         studyIndex += 1;
         renderStudyCard();
         updateStudyProgressBar();
-      }, 260);
+      }, 340);
       finish(e, true);
       return;
     }

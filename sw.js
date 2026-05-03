@@ -1,4 +1,4 @@
-const CACHE = 'worldcards-cache-v1';
+const CACHE = 'worldcards-cache-v2';
 const ASSETS = [
   './',
   './index.html',
