@@ -4,7 +4,7 @@ const STORAGE_KEY = 'worldcards-state-v1';
 const SIMILARITY_MIN = 0.7;
 const STREAK_TO_LEARNED = 2;
 
-const QUESTION_TYPES = ['country_capital', 'flag_capital', 'fact_capital', 'capital_country'];
+const QUESTION_TYPES = ['country_capital', 'flag_capital', 'capital_country'];
 
 function hashId(str) {
   let h = 2166136261 >>> 0;
@@ -532,6 +532,10 @@ function renderRepeatCard() {
   els.repeatStreak.textContent = `Серия: ${repeatSessionStreak}`;
 }
 
+function formatRepeatSolution(country) {
+  return `Правильный ответ: ${country.capital}. Страна: ${country.name}. Флаг: ${country.flag}`;
+}
+
 function flashRepeat(ok) {
   const el = els.repeatCard;
   el.classList.remove('ok', 'bad');
@@ -542,10 +546,16 @@ function flashRepeat(ok) {
 
 function submitRepeat() {
   if (!repeatCurrent) return;
+  if (els.repeatInput.disabled) return;
   const user = els.repeatInput.value;
   const sim = answerSimilarity(user, repeatCurrent.expected);
   const ok = sim >= SIMILARITY_MIN;
   const prog = getProgress(state, repeatCurrent.country.id);
+  const solutionText = formatRepeatSolution(repeatCurrent.country);
+
+  els.repeatInput.disabled = true;
+  els.btnCheck.disabled = true;
+  els.btnHint.disabled = true;
 
   if (ok) {
     soundCorrect();
@@ -577,12 +587,17 @@ function submitRepeat() {
 
   saveState(state);
   renderStats();
+  els.hintLine.textContent = solutionText;
+  els.hintLine.classList.remove('hidden');
 
   setTimeout(() => {
     repeatCurrent = pickRepeatQuestion();
     renderRepeatCard();
-    els.repeatInput.focus();
-  }, ok ? 520 : 700);
+    els.repeatInput.disabled = !repeatCurrent;
+    els.btnCheck.disabled = !repeatCurrent;
+    els.btnHint.disabled = !repeatCurrent;
+    if (repeatCurrent) els.repeatInput.focus();
+  }, ok ? 1100 : 1300);
 }
 
 function showHint() {
